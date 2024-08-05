@@ -1,4 +1,4 @@
-import { generateDeck, shuffleDeck } from "@/components/Deck";
+import { generateDeck, shuffleDeck } from "@/utils/deckUtils/deckUtils";
 import { Action, GameState } from "@/types/types";
 import {
 	DEAL_CARD,
@@ -23,6 +23,7 @@ const initialState: GameState = {
 
 const gameReducer = (state: GameState, action: Action): GameState => {
 	const { type } = action;
+	const { playerHand, dealerHand } = state;
 
 	switch (type) {
 		case START_GAME:
@@ -30,6 +31,7 @@ const gameReducer = (state: GameState, action: Action): GameState => {
 				...initialState,
 				deck: shuffleDeck(generateDeck()),
 			};
+
 		case DEAL_CARD: {
 			const deck = [...state.deck];
 			const card = deck.pop();
@@ -37,14 +39,18 @@ const gameReducer = (state: GameState, action: Action): GameState => {
 
 			return { ...state, deck, [action.hand]: [...state[action.hand], card] };
 		}
+
 		case HIT:
 			if (state.isGameOver) return state;
+
 			return gameReducer(state, { type: DEAL_CARD, hand: action.hand });
+
 		case STAND:
 			return gameReducer(state, { type: DETERMINE_OUTCOME });
+
 		case DETERMINE_OUTCOME:
-			const playerValue = calculateHandValue(state.playerHand);
-			const dealerValue = calculateHandValue(state.dealerHand);
+			const playerValue = calculateHandValue(playerHand);
+			const dealerValue = calculateHandValue(dealerHand);
 
 			let winner: typeof player | typeof dealer | typeof draw | typeof none = none;
 

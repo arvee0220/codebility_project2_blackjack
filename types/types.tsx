@@ -1,4 +1,4 @@
-import { generateDeck, shuffleDeck } from "@/components/Deck";
+import { generateDeck, shuffleDeck } from "@/utils/deckUtils/deckUtils";
 import {
 	START_GAME,
 	DEAL_CARD,

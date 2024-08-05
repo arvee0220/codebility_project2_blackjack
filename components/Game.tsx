@@ -1,8 +1,8 @@
 "use client";
 import { useReducer } from "react";
-import { generateDeck, shuffleDeck } from "./Deck";
+
 import Hand from "./Hand";
-import { GameState } from "@/types/types";
+
 import { gameReducer, initialState } from "@/utils/reducers/cardReducer";
 import {
 	DEAL_CARD,
@@ -22,11 +22,14 @@ const Game: React.FC = () => {
 		dispatch({ type: DEAL_CARD, hand });
 	};
 
+	// startGame function limits the card number into two by using dealCard() twice per participant(dealer & player)
 	const startGame = () => {
 		dispatch({ type: START_GAME });
+
 		dealCard(playerHand);
+		dealCard(playerHand);
+
 		dealCard(dealerHand);
-		dealCard(playerHand);
 		dealCard(dealerHand);
 	};
 
