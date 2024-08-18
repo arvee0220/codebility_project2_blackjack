@@ -121,7 +121,7 @@ const Game: React.FC = () => {
 	}, [playerHand, dealerHand, gameOver]);
 
 	return (
-		<div className="container bg-slate-900 text-white h-screen w-screen">
+		<div className="bg-gradient-radial from-blue-500 to-slate-900 text-white h-screen w-screen">
 			<h1 className="text-4xl text-center mb-4">Blackjack</h1>
 			{gameOver && (
 				<div
