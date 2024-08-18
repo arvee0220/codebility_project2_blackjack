@@ -52,7 +52,6 @@ const Game: React.FC = () => {
 	const playerStand = () => {
 		dispatch({ type: SET_GAME_OVER, payload: true });
 		const newHand = [...dealerHand, getRandomCardFromDeck()];
-		dispatch({ type: SET_DEALER_HAND, payload: newHand });
 
 		const dealerValue = calculateHandValue(newHand);
 
@@ -63,6 +62,8 @@ const Game: React.FC = () => {
 			});
 		} else if (playerValue < dealerValue) {
 			dispatch({ type: GAME_OVER, payload: { type: "dealer", message: "Dealer wins!" } });
+		} else {
+			dispatch({ type: SET_DEALER_HAND, payload: newHand });
 		}
 	};
 
@@ -113,6 +114,12 @@ const Game: React.FC = () => {
 					});
 					dispatch({ type: SET_NEW_GAME, payload: true });
 					break;
+				case dealerValue === 21 && playerValue === 21:
+					dispatch({
+						type: SET_RESULT,
+						payload: { type: "", message: "Draw!" },
+					});
+					dispatch({ type: SET_NEW_GAME, payload: true });
 				default:
 					break;
 			}
