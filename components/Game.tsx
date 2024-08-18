@@ -1,72 +1,157 @@
 "use client";
-import { useReducer } from "react";
+import { useReducer, useEffect } from "react";
 
 import Hand from "./Hand";
 
 import { gameReducer, initialState } from "@/utils/reducers/cardReducer";
 import {
-	DEAL_CARD,
-	HIT,
-	STAND,
-	START_GAME,
-	dealerHand,
-	none,
-	playerHand,
+	GAME_OVER,
+	RESET_GAME,
+	SET_DEALER_HAND,
+	SET_DECK,
+	SET_GAME_OVER,
+	SET_NEW_GAME,
+	SET_PLAYER_HAND,
+	SET_RESULT,
 } from "@/utils/constants/actionTypes";
+
+import Button from "./Button";
+
 import { calculateHandValue } from "@/utils/handUtils/handUtils";
+import { CardType } from "@/types/types";
 
 const Game: React.FC = () => {
 	const [state, dispatch] = useReducer(gameReducer, initialState);
 
-	const dealCard = (hand: typeof playerHand | typeof dealerHand) => {
-		dispatch({ type: DEAL_CARD, hand });
+	const { gameDeck, playerHand, dealerHand, gameOver, result, newGame } = state;
+
+	const getRandomCardFromDeck = (): CardType => {
+		const randomIndex = Math.floor(Math.random() * gameDeck.length);
+		const card = gameDeck[randomIndex];
+		const newDeck = gameDeck.filter((_, index) => index !== randomIndex);
+		dispatch({ type: SET_DECK, payload: newDeck });
+		return card;
 	};
 
-	// startGame function limits the card number into two by using dealCard() twice per participant(dealer & player)
-	const startGame = () => {
-		dispatch({ type: START_GAME });
+	const dealCardToPlayer = () => {
+		const newHand = [...playerHand, getRandomCardFromDeck()];
+		dispatch({ type: SET_PLAYER_HAND, payload: newHand });
 
-		dealCard(playerHand);
-		dealCard(playerHand);
+		const playerValue = calculateHandValue(newHand);
 
-		dealCard(dealerHand);
-		dealCard(dealerHand);
+		if (playerValue > 21) {
+			dispatch({
+				type: GAME_OVER,
+				payload: { type: "dealer", message: "Player busts! Dealer Wins" },
+			});
+		} else if (playerValue === 21) {
+			dispatch({ type: GAME_OVER, payload: { type: "player", message: "Player Wins!" } });
+		}
 	};
 
-	const hit = () => {
-		dispatch({ type: HIT, hand: playerHand });
-		dispatch({ type: HIT, hand: dealerHand });
+	const playerStand = () => {
+		dispatch({ type: SET_GAME_OVER, payload: true });
+		const newHand = [...dealerHand, getRandomCardFromDeck()];
+		dispatch({ type: SET_DEALER_HAND, payload: newHand });
+
+		const dealerValue = calculateHandValue(newHand);
+
+		if (dealerValue > 21) {
+			dispatch({
+				type: GAME_OVER,
+				payload: { type: "player", message: "Dealer busts! Player wins!" },
+			});
+		} else if (playerValue < dealerValue) {
+			dispatch({ type: GAME_OVER, payload: { type: "dealer", message: "Dealer wins!" } });
+		}
 	};
 
-	const stand = () => {
-		dispatch({ type: STAND });
+	const resetGame = () => {
+		dispatch({ type: RESET_GAME });
 	};
+
+	const playerValue = calculateHandValue(playerHand);
+	const dealerValue = calculateHandValue(dealerHand);
+
+	useEffect(() => {
+		if (playerHand.length === 0 && dealerHand.length === 0) {
+			dispatch({
+				type: SET_PLAYER_HAND,
+				payload: [getRandomCardFromDeck(), getRandomCardFromDeck()],
+			});
+			dispatch({
+				type: SET_DEALER_HAND,
+				payload: [getRandomCardFromDeck(), getRandomCardFromDeck()],
+			});
+		}
+
+		if (gameOver && dealerHand.length <= 5) {
+			switch (true) {
+				case playerValue === 21:
+					dispatch({
+						type: SET_RESULT,
+						payload: { type: "player", message: "Player wins!" },
+					});
+					break;
+				case playerValue > 21:
+					dispatch({
+						type: SET_RESULT,
+						payload: { type: "dealer", message: "Dealer wins!" },
+					});
+					break;
+				case dealerValue <= playerValue:
+					playerStand();
+					break;
+				case dealerValue === playerValue && dealerHand.length <= 5:
+					dispatch({ type: SET_RESULT, payload: { type: "", message: "Draw!" } });
+					dispatch({ type: SET_NEW_GAME, payload: true });
+					break;
+				case dealerValue > playerValue && dealerValue <= 21:
+					dispatch({
+						type: SET_RESULT,
+						payload: { type: "dealer", message: "Dealer wins!" },
+					});
+					dispatch({ type: SET_NEW_GAME, payload: true });
+					break;
+				default:
+					break;
+			}
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [playerHand, dealerHand, gameOver]);
 
 	return (
-		<div className="p-4 max-w-2xl mx-auto">
-			<h1 className="text-3xl font-bold mb-4">Blackjack</h1>
-			<button
-				onClick={startGame}
-				className="bg-blue-500 text-white px-4 py-2 rounded shadow hover:bg-blue-600"
-			>
-				Start Game
-			</button>
-			<button
-				onClick={hit}
-				disabled={state.isGameOver || calculateHandValue(state.playerHand) >= 21}
-			>
-				Hit
-			</button>
-			<button onClick={stand} disabled={state.isGameOver}>
-				Stand
-			</button>
-			<h2 className="text-xl font-semibold mt-4">Dealer&apos;s Hand</h2>
-			<Hand cards={state.dealerHand} />
-			<h2 className="text-xl font-semibold mt-4">Player&apos;s Hand</h2>
-			<Hand cards={state.playerHand} />
-			{state.isGameOver && (
-				<h2>{state.winner === none ? "It's a tie!" : `${state.winner} wins!`}</h2>
+		<div className="container bg-slate-900 text-white h-screen w-screen">
+			<h1 className="text-4xl text-center mb-4">Blackjack</h1>
+			{gameOver && (
+				<div
+					className={`text-white ${
+						result.type === "player" ? "bg-green-600" : "bg-red-700"
+					} font-bold rounded-md text-center mt-4 py-4`}
+				>
+					<h2 className="text-2xl">{result.message}</h2>
+				</div>
 			)}
+			<div className="flex justify-center flex-col gap-2 mt-4">
+				{!newGame ? (
+					<div className="flex justify-center">
+						<Button bg_color={"green"} onClick={dealCardToPlayer}>
+							Hit
+						</Button>
+						<Button bg_color={"red"} onClick={playerStand}>
+							Stand
+						</Button>
+					</div>
+				) : (
+					<Button bg_color={"blue"} onClick={resetGame}>
+						Reset
+					</Button>
+				)}
+				<div className="flex justify-around">
+					<Hand cards={playerHand} title={"Player's Hand"} handValue={playerValue} />
+					<Hand cards={dealerHand} title={"Dealer's Hand"} handValue={dealerValue} />
+				</div>
+			</div>
 		</div>
 	);
 };

@@ -1,48 +1,59 @@
-import { generateDeck, shuffleDeck } from "@/utils/deckUtils/deckUtils";
 import {
-	START_GAME,
-	DEAL_CARD,
-	playerHand,
-	dealerHand,
-	HIT,
-	STAND,
-	DETERMINE_OUTCOME,
-	player,
-	dealer,
-	none,
-	draw,
+	DEAL_CARD_TO_PLAYER,
+	GAME_OVER,
+	PLAYER_STAND,
+	RESET_GAME,
+	SET_DEALER_HAND,
+	SET_DECK,
+	SET_GAME_OVER,
+	SET_NEW_GAME,
+	SET_PLAYER_HAND,
+	SET_RESULT,
 } from "@/utils/constants/actionTypes";
+import { ReactNode } from "react";
 
-type DeckSuits = string[];
-
-type DeckValue = string[];
-
-type Card = {
+export type CardType = {
 	suit: string;
 	value: string;
 };
 
-type CardProps = {
-	card: Card;
+export interface HandProps {
+	cards: CardType[];
+	title: string;
+	handValue: number;
+}
+
+export interface CardProps {
+	card: CardType;
+}
+
+export interface ButtonProps {
+	children: ReactNode;
+	onClick: () => void;
+	bg_color: string;
+}
+
+export type Result = {
+	type: "player" | "dealer" | "";
+	message: string;
 };
+export interface GameState {
+	gameDeck: CardType[];
+	playerHand: CardType[];
+	dealerHand: CardType[];
+	gameOver: boolean;
+	result: Result;
+	newGame: boolean;
+}
 
-type HandProps = {
-	cards: Card[];
-};
-
-type GameState = {
-	deck: Card[];
-	playerHand: Card[];
-	dealerHand: Card[];
-	isGameOver: boolean;
-	winner: typeof player | typeof dealer | typeof draw | typeof none;
-};
-
-type Action =
-	| { type: typeof START_GAME }
-	| { type: typeof DEAL_CARD; hand: typeof playerHand | typeof dealerHand }
-	| { type: typeof HIT; hand: typeof playerHand | typeof dealerHand }
-	| { type: typeof STAND }
-	| { type: typeof DETERMINE_OUTCOME };
-
-export type { DeckSuits, DeckValue, Card, CardProps, HandProps, GameState, Action };
+export type GameAction =
+	| { type: typeof DEAL_CARD_TO_PLAYER }
+	| { type: typeof PLAYER_STAND }
+	| { type: typeof GAME_OVER; payload: Result }
+	| { type: typeof RESET_GAME }
+	| { type: typeof SET_DECK; payload: CardType[] }
+	| { type: typeof SET_PLAYER_HAND; payload: CardType[] }
+	| { type: typeof SET_DEALER_HAND; payload: CardType[] }
+	| { type: typeof SET_GAME_OVER; payload: boolean }
+	| { type: typeof SET_RESULT; payload: Result }
+	| { type: typeof SET_NEW_GAME; payload: boolean };

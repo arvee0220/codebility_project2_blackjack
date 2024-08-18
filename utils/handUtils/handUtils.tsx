@@ -1,14 +1,19 @@
-import { Card } from "@/types/types";
+import { CardType } from "@/types/types";
 
-const getCardValue = (card: Card): number => {
-	if (["Jack", "Queen", "King"].includes(card.value)) return 10;
-	if (card.value === "Ace") return 11;
-	return parseInt(card.value, 10);
-};
+const calculateHandValue = (hand: CardType[]): number => {
+	let value = 0;
+	let aceCount = 0;
 
-const calculateHandValue = (hand: Card[]): number => {
-	let value = hand.reduce((sum, card) => sum + getCardValue(card), 0);
-	let aceCount = hand.filter((card) => card.value === "Ace").length;
+	hand.forEach((card) => {
+		if (card.value === "J" || card.value === "Q" || card.value === "K") {
+			value += 10;
+		} else if (card.value === "A") {
+			aceCount += 1;
+			value += 11;
+		} else {
+			value += parseInt(card.value, 10);
+		}
+	});
 
 	while (value > 21 && aceCount > 0) {
 		value -= 10;
@@ -18,4 +23,4 @@ const calculateHandValue = (hand: Card[]): number => {
 	return value;
 };
 
-export { getCardValue, calculateHandValue };
+export { calculateHandValue };

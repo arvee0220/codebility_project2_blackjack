@@ -1,25 +1,25 @@
-const START_GAME = "START_GAME";
-const DEAL_CARD = "DEAL_CARD";
-const HIT = "HIT";
-const STAND = "STAND";
-const DETERMINE_OUTCOME = "DETERMINE_OUTCOME";
-const dealerHand = "dealerHand";
-const playerHand = "playerHand";
-const player = "player";
-const dealer = "dealer";
-const none = "none";
-const draw = "draw";
+const DEAL_CARD_TO_PLAYER = "DEAL_CARD_TO_PLAYER";
+const PLAYER_STAND = "PLAYER_STAND";
+const DEAL_CARD_TO_DEALER = "DEAL_CARD_TO_DEALER";
+const GAME_OVER = "GAME_OVER";
+const RESET_GAME = "RESET_GAME";
+const SET_DECK = "SET_DECK";
+const SET_PLAYER_HAND = "SET_PLAYER_HAND";
+const SET_DEALER_HAND = "SET_DEALER_HAND";
+const SET_GAME_OVER = "SET_GAME_OVER";
+const SET_RESULT = "SET_RESULT";
+const SET_NEW_GAME = "SET_NEW_GAME";
 
 export {
-	START_GAME,
-	DEAL_CARD,
-	HIT,
-	STAND,
-	DETERMINE_OUTCOME,
-	dealerHand,
-	playerHand,
-	player,
-	dealer,
-	none,
-    draw
+	DEAL_CARD_TO_PLAYER,
+	PLAYER_STAND,
+	DEAL_CARD_TO_DEALER,
+	GAME_OVER,
+	RESET_GAME,
+	SET_DECK,
+	SET_PLAYER_HAND,
+	SET_DEALER_HAND,
+	SET_GAME_OVER,
+	SET_RESULT,
+	SET_NEW_GAME,
 };

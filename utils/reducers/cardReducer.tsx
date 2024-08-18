@@ -1,73 +1,65 @@
-import { generateDeck, shuffleDeck } from "@/utils/deckUtils/deckUtils";
-import { Action, GameState } from "@/types/types";
+import { combinations } from "@/utils/deckUtils/deckUtils";
+
 import {
-	DEAL_CARD,
-	DETERMINE_OUTCOME,
-	HIT,
-	STAND,
-	START_GAME,
-	player,
-	dealer,
-	none,
-	draw,
+	DEAL_CARD_TO_PLAYER,
+	RESET_GAME,
+	PLAYER_STAND,
+	GAME_OVER,
+	SET_DECK,
+	SET_PLAYER_HAND,
+	SET_DEALER_HAND,
+	SET_GAME_OVER,
+	SET_RESULT,
+	SET_NEW_GAME,
 } from "../constants/actionTypes";
-import { calculateHandValue } from "../handUtils/handUtils";
+import { GameAction, GameState } from "@/types/types";
 
 const initialState: GameState = {
-	deck: shuffleDeck(generateDeck()),
+	gameDeck: combinations,
 	playerHand: [],
 	dealerHand: [],
-	isGameOver: false,
-	winner: none,
+	gameOver: false,
+	result: { type: "", message: "" },
+	newGame: false,
 };
 
-const gameReducer = (state: GameState, action: Action): GameState => {
+const gameReducer = (state: GameState, action: GameAction): GameState => {
 	const { type } = action;
-	const { playerHand, dealerHand } = state;
 
 	switch (type) {
-		case START_GAME:
-			return {
-				...initialState,
-				deck: shuffleDeck(generateDeck()),
-			};
-
-		case DEAL_CARD: {
-			const deck = [...state.deck];
-			const card = deck.pop();
-			if (!card) return state;
-
-			return { ...state, deck, [action.hand]: [...state[action.hand], card] };
-		}
-
-		case HIT:
-			if (state.isGameOver) return state;
-
-			return gameReducer(state, { type: DEAL_CARD, hand: action.hand });
-
-		case STAND:
-			return gameReducer(state, { type: DETERMINE_OUTCOME });
-
-		case DETERMINE_OUTCOME:
-			const playerValue = calculateHandValue(playerHand);
-			const dealerValue = calculateHandValue(dealerHand);
-
-			let winner: typeof player | typeof dealer | typeof draw | typeof none = none;
-
-			if (playerValue > 21 || playerValue < dealerValue) {
-				winner = dealer;
-			} else if (dealerValue > 21 || playerValue > dealerValue) {
-				winner = player;
-			} else if (playerValue === dealerValue) {
-				winner = draw;
-			}
-
+		case DEAL_CARD_TO_PLAYER:
+			return state;
+		case PLAYER_STAND:
+			return state;
+		case GAME_OVER:
 			return {
 				...state,
-				isGameOver: true,
-				winner,
+				gameOver: true,
+				result: action.payload,
+				newGame: true,
 			};
-
+		case RESET_GAME:
+			return {
+				...state,
+				playerHand: [],
+				dealerHand: [],
+				gameOver: false,
+				result: { type: "", message: "" },
+				newGame: false,
+				gameDeck: state.gameDeck,
+			};
+		case SET_DECK:
+			return { ...state, gameDeck: action.payload };
+		case SET_PLAYER_HAND:
+			return { ...state, playerHand: action.payload };
+		case SET_DEALER_HAND:
+			return { ...state, dealerHand: action.payload };
+		case SET_GAME_OVER:
+			return { ...state, gameOver: action.payload };
+		case SET_RESULT:
+			return { ...state, result: action.payload };
+		case SET_NEW_GAME:
+			return { ...state, newGame: action.payload };
 		default:
 			return state;
 	}

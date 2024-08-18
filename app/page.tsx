@@ -2,10 +2,8 @@ import Game from "@/components/Game";
 
 export default function Home() {
 	return (
-		<main>
-			<div className="min-h-screen flex items-center justify-center">
-				<Game />
-			</div>
+		<main className="w-full h-full flex justify-center align-center">
+			<Game />
 		</main>
 	);
 }
