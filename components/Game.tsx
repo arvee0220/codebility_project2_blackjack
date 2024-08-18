@@ -62,7 +62,7 @@ const Game: React.FC = () => {
 			});
 		} else if (playerValue < dealerValue) {
 			dispatch({ type: GAME_OVER, payload: { type: "dealer", message: "Dealer wins!" } });
-		} else {
+		} else if (dealerValue < playerValue) {
 			dispatch({ type: SET_DEALER_HAND, payload: newHand });
 		}
 	};
