@@ -120,6 +120,7 @@ const Game: React.FC = () => {
 						payload: { type: "", message: "Draw!" },
 					});
 					dispatch({ type: SET_NEW_GAME, payload: true });
+					break;
 				default:
 					break;
 			}
